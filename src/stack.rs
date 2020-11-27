@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 use web_sys::HtmlElement;
 
-use crate::utils::{create_element, ViewFromJs};
+use crate::utils::{create_element, View};
 
 #[wasm_bindgen]
 pub enum Orientation {
@@ -10,33 +10,30 @@ pub enum Orientation {
 }
 
 #[wasm_bindgen]
-pub struct Stack {
-    body: HtmlElement,
-}
+pub struct Stack(HtmlElement);
 
 #[wasm_bindgen]
 impl Stack {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Stack {
-        Stack {
-            body: create_element("div"),
-        }
+        Stack(create_element("div"))
     }
 
-    #[wasm_bindgen(variadic)]
-    pub fn child(self, child: &ViewFromJs) -> Self {
-        self.body.append_child(&child.get_body()).unwrap();
+    /// Append a child to the stack.
+    pub fn child(self, child: &View) -> Self {
+        self.0.append_child(&child.body()).unwrap();
         self
     }
 
+    /// Orient the stack horizontally or vertically.
     pub fn orient(self, orientation: Orientation) -> Self {
         let direction = match orientation {
             Orientation::Horizontal => "row",
             Orientation::Vertical => "column",
         };
 
-        self.body.style().set_property("display", "flex").unwrap();
-        self.body
+        self.0.style().set_property("display", "flex").unwrap();
+        self.0
             .style()
             .set_property("flex-direction", direction)
             .unwrap();
@@ -45,7 +42,7 @@ impl Stack {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_body(&self) -> HtmlElement {
-        self.body.clone()
+    pub fn body(&self) -> HtmlElement {
+        self.0.clone()
     }
 }

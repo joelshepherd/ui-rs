@@ -1,9 +1,10 @@
 import init, {
+  Button,
   Orientation,
   Stack,
   Stream,
-  TextField,
   Text,
+  TextField,
 } from "../pkg/ui_rs.js";
 
 async function main() {
@@ -28,12 +29,13 @@ async function main() {
         .child(new Text().stream(stream2))
         .orient(Orientation.Horizontal)
     )
+    .child(new Button("Hello World").action(() => alert("Hello World!")))
     .orient(Orientation.Vertical);
 
   stream1.next("hello");
   stream2.next("world");
 
-  document.body.appendChild(app.get_body);
+  document.body.appendChild(app.body);
 }
 
 main().catch(console.error);

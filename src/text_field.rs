@@ -5,9 +5,7 @@ use web_sys::HtmlInputElement;
 use crate::{stream::Stream, utils::create_element};
 
 #[wasm_bindgen]
-pub struct TextField {
-    body: HtmlInputElement,
-}
+pub struct TextField(HtmlInputElement);
 
 #[wasm_bindgen]
 impl TextField {
@@ -33,11 +31,11 @@ impl TextField {
         body.set_oninput(Some(cb.as_ref().unchecked_ref()));
         cb.forget();
 
-        TextField { body }
+        TextField(body)
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_body(&self) -> HtmlInputElement {
-        self.body.clone()
+    pub fn body(&self) -> HtmlInputElement {
+        self.0.clone()
     }
 }

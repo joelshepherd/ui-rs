@@ -1,3 +1,4 @@
+mod button;
 mod stack;
 mod stream;
 mod text;

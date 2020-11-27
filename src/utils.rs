@@ -20,19 +20,21 @@ pub fn create_element(tag: &str) -> HtmlElement {
         .unwrap()
         .create_element(&tag)
         .unwrap()
-        .dyn_ref::<HtmlElement>()
-        .unwrap()
-        .to_owned()
+        .unchecked_into()
 }
 
-pub trait View {
-    fn get_body(&self) -> HtmlElement;
+#[wasm_bindgen(typescript_custom_section)]
+const VIEW: &'static str = r#"
+interface View {
+    body: HTMLElement;
 }
+"#;
 
 #[wasm_bindgen]
 extern "C" {
-    pub type ViewFromJs;
+    #[wasm_bindgen(typescript_type = "View")]
+    pub type View;
 
     #[wasm_bindgen(structural, method, getter)]
-    pub fn get_body(this: &ViewFromJs) -> HtmlElement;
+    pub fn body(this: &View) -> HtmlElement;
 }
