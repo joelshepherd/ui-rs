@@ -4,6 +4,13 @@ use web_sys::HtmlElement;
 use crate::utils::{create_element, View};
 
 #[wasm_bindgen]
+pub enum Alignment {
+    Leading,
+    Center,
+    Trailing,
+}
+
+#[wasm_bindgen]
 pub enum Orientation {
     Horizontal,
     Vertical,
@@ -25,6 +32,20 @@ impl Stack {
         self
     }
 
+    /// Set alignment of children.
+    pub fn align(self, alignment: Alignment) -> Self {
+        let align_items = match alignment {
+            Alignment::Leading => "start",
+            Alignment::Center => "center",
+            Alignment::Trailing => "end",
+        };
+        self.0
+            .style()
+            .set_property("align-items", align_items)
+            .unwrap();
+        self
+    }
+
     /// Orient the stack horizontally or vertically.
     pub fn orient(self, orientation: Orientation) -> Self {
         let direction = match orientation {
@@ -38,6 +59,15 @@ impl Stack {
             .set_property("flex-direction", direction)
             .unwrap();
 
+        self
+    }
+
+    /// Set spacing between children.
+    pub fn spacing(self, spacing: usize) -> Self {
+        self.0
+            .style()
+            .set_property("gap", &format!("{}px", spacing))
+            .unwrap();
         self
     }
 

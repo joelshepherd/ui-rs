@@ -11,9 +11,7 @@ impl Text {
     #[wasm_bindgen(constructor)]
     pub fn new(label: Option<String>) -> Text {
         let body = create_element("span");
-
         body.set_text_content(label.as_deref());
-
         Text(body)
     }
 
@@ -22,7 +20,6 @@ impl Text {
         stream.subscribe(Box::new(move |x| {
             _body.set_text_content(Some(&x));
         }));
-
         self
     }
 
