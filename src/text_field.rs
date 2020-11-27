@@ -11,10 +11,7 @@ pub struct TextField(HtmlInputElement);
 impl TextField {
     #[wasm_bindgen(constructor)]
     pub fn new(stream: &mut Stream) -> TextField {
-        let body: HtmlInputElement = create_element("input")
-            .dyn_ref::<HtmlInputElement>()
-            .unwrap()
-            .to_owned();
+        let body: HtmlInputElement = create_element("input").unchecked_into();
 
         body.set_type("text");
 
@@ -32,6 +29,12 @@ impl TextField {
         cb.forget();
 
         TextField(body)
+    }
+
+    /// Obfuscate the input of the text field.
+    pub fn secure(self) -> Self {
+        self.0.set_type("password");
+        self
     }
 
     #[wasm_bindgen(getter)]
