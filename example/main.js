@@ -16,40 +16,33 @@ async function main() {
   const password = new Stream("");
 
   const app = new Stack()
+    .child(new Text("Login Form"))
     .child(
       new Stack()
         .child(new Text("Username:"))
         .child(new TextField(username))
+        .child(new Text().stream(username))
         .align(Alignment.Center)
         .orient(Orientation.Horizontal)
+        .spacing(5)
     )
     .child(
       new Stack()
         .child(new Text("Password:"))
         .child(new TextField(password).secure())
+        .child(new Text().stream(password))
         .align(Alignment.Center)
         .orient(Orientation.Horizontal)
+        .spacing(5)
     )
     .child(new Button("Login").action(() => alert("Nice try!")))
-    .child(
-      new Stack()
-        .child(new Text("username:"))
-        .child(new Text().stream(username))
-        .orient(Orientation.Horizontal)
-        .spacing(10)
-    )
-    .child(
-      new Stack()
-        .child(new Text("password:"))
-        .child(new Text().stream(password))
-        .orient(Orientation.Horizontal)
-        .spacing(10)
-    )
-    .orient(Orientation.Vertical);
+    .align(Alignment.Leading)
+    .orient(Orientation.Vertical)
+    .spacing(10);
 
   // Manually pass in next value
-  username.next("hello");
-  password.next("world");
+  username.next("user@example.com");
+  password.next("password");
 
   document.body.appendChild(app.body);
 }
