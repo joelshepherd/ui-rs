@@ -35,6 +35,6 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "View")]
     pub type View;
 
-    #[wasm_bindgen(structural, method, getter)]
+    #[wasm_bindgen(method, getter)]
     pub fn body(this: &View) -> HtmlElement;
 }

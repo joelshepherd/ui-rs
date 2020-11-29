@@ -52,13 +52,11 @@ impl Stack {
             Orientation::Horizontal => "row",
             Orientation::Vertical => "column",
         };
-
         self.0.style().set_property("display", "flex").unwrap();
         self.0
             .style()
             .set_property("flex-direction", direction)
             .unwrap();
-
         self
     }
 

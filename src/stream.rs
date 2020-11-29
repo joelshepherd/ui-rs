@@ -1,7 +1,12 @@
+use js_sys::Function;
+use std::{cell::RefCell, collections::HashMap, sync::atomic::AtomicUsize, sync::atomic::Ordering};
 use wasm_bindgen::prelude::*;
 
-static mut VALUE: Vec<String> = Vec::new();
-static mut SINKS: Vec<Vec<Box<dyn Fn(&str)>>> = Vec::new();
+thread_local! {
+    static INDEX: AtomicUsize = AtomicUsize::new(0);
+    static VALUE: RefCell<HashMap<usize, String>> = RefCell::new(HashMap::new());
+    static SINKS: RefCell<HashMap<usize, Vec<Box<dyn Fn(&str)>>>> = RefCell::new(HashMap::new());
+}
 
 /// Create an observable stream of variables.
 #[wasm_bindgen]
@@ -18,36 +23,46 @@ pub struct Stream {
 impl Stream {
     #[wasm_bindgen(constructor)]
     pub fn new(value: String) -> Stream {
-        unsafe {
-            VALUE.push(value);
-            SINKS.push(Vec::new());
+        let index = INDEX.with(|x| x.fetch_add(1, Ordering::SeqCst));
 
-            let index = VALUE.len() - 1;
+        VALUE.with(|x| x.borrow_mut().insert(index, value));
+        SINKS.with(|x| x.borrow_mut().insert(index, Vec::new()));
 
-            Stream { index }
-        }
+        Stream { index }
     }
 
-    pub(crate) fn subscribe(&mut self, sink: Box<dyn Fn(&str)>) {
-        unsafe {
-            sink(&VALUE[self.index]);
-            SINKS[self.index].push(sink);
-        }
+    pub(crate) fn subscribe(&self, sink: Box<dyn Fn(&str)>) {
+        sink(&self.value());
+        SINKS.with(|x| x.borrow_mut().get_mut(&self.index).unwrap().push(sink));
+    }
+
+    #[wasm_bindgen(js_name=subscribe)]
+    pub fn subscribe_for_js(&self, sink: Function) {
+        self.subscribe(Box::new(move |value| {
+            let null = JsValue::null();
+            sink.call1(&null, &JsValue::from(value)).unwrap();
+        }));
     }
 
     /// Push a new value onto the stream.
     pub fn next(&self, value: String) {
-        unsafe {
-            for sink in SINKS[self.index].iter() {
+        SINKS.with(|x| {
+            for sink in x.borrow().get(&self.index).unwrap().iter() {
                 (sink)(&value);
             }
-            VALUE[self.index] = value;
-        }
+        });
+        VALUE.with(|x| x.borrow_mut().insert(self.index, value));
     }
 
-    // TODO: crashes wasm-pack for some reason
-    // #[wasm_bindgen(getter)]
-    // pub fn value(&self) -> String {
-    //     unsafe { VALUE[self.index].to_string() }
-    // }
+    #[wasm_bindgen(getter)]
+    pub fn value(&self) -> String {
+        VALUE.with(|x| x.borrow().get(&self.index).unwrap().into())
+    }
+}
+
+impl Drop for Stream {
+    fn drop(&mut self) {
+        VALUE.with(|x| x.borrow_mut().remove(&self.index));
+        SINKS.with(|x| x.borrow_mut().remove(&self.index));
+    }
 }
