@@ -62,7 +62,8 @@ impl Stream {
 
 impl Drop for Stream {
     fn drop(&mut self) {
-        VALUE.with(|x| x.borrow_mut().remove(&self.index));
-        SINKS.with(|x| x.borrow_mut().remove(&self.index));
+        // TODO: Check for other references before clearing static hashmap
+        // VALUE.with(|x| x.borrow_mut().remove(&self.index));
+        // SINKS.with(|x| x.borrow_mut().remove(&self.index));
     }
 }
