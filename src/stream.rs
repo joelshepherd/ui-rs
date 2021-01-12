@@ -63,6 +63,7 @@ impl Stream {
 impl Drop for Stream {
     fn drop(&mut self) {
         // TODO: Check for other references before clearing static hashmap
+        // TODO: I think `Rc` or `Arc` might be the solution
         // VALUE.with(|x| x.borrow_mut().remove(&self.index));
         // SINKS.with(|x| x.borrow_mut().remove(&self.index));
     }

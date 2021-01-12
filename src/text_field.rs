@@ -15,18 +15,23 @@ impl TextField {
 
         body.set_type("text");
 
-        let _body = body.clone();
-        stream.subscribe(Box::new(move |x| {
-            _body.set_value(&x);
-        }));
+        let on_subscribe = {
+            let body = body.clone();
+            Box::new(move |x: &str| {
+                body.set_value(&x);
+            })
+        };
+        stream.subscribe(on_subscribe);
 
-        let _body = body.clone();
-        let _stream = stream.clone();
-        let cb = Closure::wrap(Box::new(move || {
-            _stream.next(_body.value());
-        }) as Box<dyn Fn()>);
-        body.set_oninput(Some(cb.as_ref().unchecked_ref()));
-        cb.forget();
+        let on_input = {
+            let body = body.clone();
+            let stream = stream.clone();
+            Closure::wrap(Box::new(move || {
+                stream.next(body.value());
+            }) as Box<dyn Fn()>)
+        };
+        body.set_oninput(Some(on_input.as_ref().unchecked_ref()));
+        on_input.forget();
 
         TextField(body)
     }

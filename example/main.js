@@ -44,7 +44,7 @@ async function main() {
   username.next("user@example.com");
   password.next("password");
 
-  document.body.appendChild(app.body);
+  document.body.append(app.body);
 }
 
 main().catch(console.error);
